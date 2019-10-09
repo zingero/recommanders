@@ -1,6 +1,7 @@
 import os
 import pickle
 import time
+import logging
 
 import numpy
 from scipy.sparse import lil_matrix
@@ -14,6 +15,7 @@ import uniformpredictor
 
 class Main(object):
 	def __init__(self):
+		self.init_logging()
 		os.makedirs(tongue.PARSED_DATA_PATH, exist_ok = True)
 		recommender_environment = {tongue.ML_100K: {'parser': Parser100K, 'data_file_name': tongue.ML_100K_FILE_NAME, 'possible_values': range(1, 6)},
 									tongue.ML_20M: {'parser': Parser20M, 'data_file_name': tongue.ML_20M_FILE_NAME, 'possible_values': range(1, 11)}}
@@ -23,9 +25,12 @@ class Main(object):
 				self.init_parser(data_set_folder_name, environment)
 			self.init_uniform_predictor(data_set_folder_name, environment)
 
+	def init_logging(self):
+		logging.basicConfig(format = '%(asctime)s %(levelname)s %(message)s', level = logging.DEBUG)
+
 	def init_parser(self, data_set_folder_name, environment):
 		start_time = time.time()
-		print("Parsing: %s" % data_set_folder_name)
+		logging.info("Parsing: %s" % data_set_folder_name)
 		parser = environment['parser'](file_path = os.path.join(data_set_folder_name, environment['data_file_name']))
 		ratings_matrix = parser.create_ratings_matrix()
 		training_set, testing_set = self.__split_ratings_matrix_to_training_and_testing(ratings_matrix, 80)
@@ -35,14 +40,14 @@ class Main(object):
 			pickle.dump(training_set, f)
 		with open(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), 'wb') as f:
 			pickle.dump(testing_set, f)
-		print("Parsed in: %s seconds" % (time.time() - start_time))
+		logging.info("Parsed in: %s seconds" % (time.time() - start_time))
 
 	def init_uniform_predictor(self, data_set_folder_name, environment):
 		start_time = time.time()
-		print("Predicting: %s" % data_set_folder_name)
+		logging.info("Predicting: %s" % data_set_folder_name)
 		uniform_predictor = uniformpredictor.UniformPredictor()
 		mae = uniform_predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), environment['possible_values'])
-		print("Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
+		logging.info("Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
 
 	def __split_ratings_matrix_to_training_and_testing(self, ratings_matrix, training_percentage = 80):
 		training_set, testing_set = lil_matrix(ratings_matrix.shape), lil_matrix(ratings_matrix.shape)
