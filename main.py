@@ -8,6 +8,7 @@ import uniformpredictor
 
 class Main(object):
 	def __init__(self):
+		print('hi')
 		self.init_parser()
 		self.init_uniform_predictor()
 
