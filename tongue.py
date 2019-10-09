@@ -1,2 +1,9 @@
 PARSED_DATA_PATH = 'parsed data'
-TESTING_SET_FILE_PATH = 'testing_set.p'
+RATING_MATRIX_FILE_NAME = 'ratings_matrix.p'
+TRAINING_SET_FILE_NAME = 'training_set.p'
+TESTING_SET_FILE_NAME = 'testing_set.p'
+
+USER_ID_INDEX = 0
+ITEM_ID_INDEX = 1
+RATING_INDEX = 2
+TIME_INDEX = 3

@@ -9,8 +9,8 @@ possible_values = [1, 2, 3, 4, 5]
 
 
 class UniformPredictor(object):
-    def predict(self, testing_set_file_path):
-        with open(os.path.join(tongue.PARSED_DATA_PATH, testing_set_file_path), 'rb') as testing_set_file:
+    def predict(self, testing_set_file_name):
+        with open(os.path.join(tongue.PARSED_DATA_PATH, testing_set_file_name), 'rb') as testing_set_file:
             testing_set = pickle.load(testing_set_file)
             rows_non_zero, cols_non_zero = testing_set.nonzero()
             mae = 0
@@ -23,5 +23,5 @@ class UniformPredictor(object):
 
 if __name__ == "__main__":
     predictor = UniformPredictor()
-    mae = predictor.predict(testing_set_file_path = tongue.TESTING_SET_FILE_PATH)
+    mae = predictor.predict(testing_set_file_name = tongue.TESTING_SET_FILE_NAME)
     print("mae: %s" % mae)
