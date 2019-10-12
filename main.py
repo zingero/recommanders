@@ -12,6 +12,8 @@ from parsers.parser20m import Parser20M
 import tongue
 import uniformpredictor
 import userbasedpredictor
+import moviebasedpredictor
+import combinedpredictor
 
 
 class Main(object):
@@ -23,8 +25,10 @@ class Main(object):
 			if not os.path.exists(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name)):
 				os.makedirs(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name))
 				self.init_parser(data_set_folder_name, environment)
-			#self.init_uniform_predictor(data_set_folder_name, environment)
+			self.init_uniform_predictor(data_set_folder_name, environment)
 			self.init_user_based_predictor(data_set_folder_name, environment)
+			self.init_movie_based_predictor(data_set_folder_name, environment)
+			self.init_combined_predictor(data_set_folder_name, environment)
 
 
 	def init_logging(self):
@@ -59,6 +63,22 @@ class Main(object):
 		user_based_predictor.train(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TRAINING_SET_FILE_NAME))
 		mae = user_based_predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), environment['possible_values'])
 		logging.info("(User based) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
+
+	def init_movie_based_predictor(self, data_set_folder_name, environment):
+		start_time = time.time()
+		logging.info("(Movie based) Predicting: %s" % data_set_folder_name)
+		movie_based_predictor = moviebasedpredictor.MovieBasedPredictor()
+		movie_based_predictor.train(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TRAINING_SET_FILE_NAME))
+		mae = movie_based_predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), environment['possible_values'])
+		logging.info("(Movie based) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
+
+	def init_combined_predictor(self, data_set_folder_name, environment):
+		start_time = time.time()
+		logging.info("(Combined) Predicting: %s" % data_set_folder_name)
+		combined_predictor = combinedpredictor.CombinedPredictor()
+		combined_predictor.train(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TRAINING_SET_FILE_NAME))
+		mae = combined_predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), environment['possible_values'])
+		logging.info("(Combined) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
 
 
 	def __split_ratings_matrix_to_training_and_testing(self, ratings_matrix, training_percentage = 80):
