@@ -9,7 +9,8 @@ class UniformPredictor(object):
 			rows_non_zero, cols_non_zero = testing_set.nonzero()
 			mae = 0
 			for i in range(len(rows_non_zero)):
-				current_rating = testing_set[rows_non_zero[i], cols_non_zero[i]]
-				current_prediction = possible_values[np.random.randint(0, len(possible_values))]
-				mae += abs(current_rating - current_prediction) / len(rows_non_zero)
+				user, item = rows_non_zero[i], cols_non_zero[i]
+				actual_rating = testing_set[user, item]
+				predicted_rating = possible_values[np.random.randint(0, len(possible_values))]
+				mae += abs(actual_rating - predicted_rating) / len(rows_non_zero)
 			return mae

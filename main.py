@@ -17,14 +17,13 @@ import userbasedpredictor
 class Main(object):
 	def __init__(self):
 		self.init_logging()
-		os.makedirs(tongue.PARSED_DATA_PATH, exist_ok = True)
-		recommender_environment = {tongue.ML_100K: {'parser': Parser100K, 'data_file_name': tongue.ML_100K_FILE_NAME, 'possible_values': range(1, 6)},
-									tongue.ML_20M: {'parser': Parser20M, 'data_file_name': tongue.ML_20M_FILE_NAME, 'possible_values': range(1, 11)}}
+		recommender_environment = {tongue.ML_100K: {'parser': Parser100K, 'data_file_name': tongue.ML_100K_FILE_NAME, 'possible_values': numpy.arange(1, 6)},
+									tongue.ML_20M: {'parser': Parser20M, 'data_file_name': tongue.ML_20M_FILE_NAME, 'possible_values': numpy.arange(1, 5.5, 0.5)}}
 		for data_set_folder_name, environment in recommender_environment.items():
 			if not os.path.exists(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name)):
 				os.makedirs(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name))
 				self.init_parser(data_set_folder_name, environment)
-			self.init_uniform_predictor(data_set_folder_name, environment)
+			#self.init_uniform_predictor(data_set_folder_name, environment)
 			self.init_user_based_predictor(data_set_folder_name, environment)
 
 
@@ -32,6 +31,7 @@ class Main(object):
 		logging.basicConfig(format = '%(asctime)s %(levelname)s %(message)s', level = logging.DEBUG)
 
 	def init_parser(self, data_set_folder_name, environment):
+		os.makedirs(tongue.PARSED_DATA_PATH, exist_ok=True)
 		start_time = time.time()
 		logging.info("Parsing: %s" % data_set_folder_name)
 		parser = environment['parser'](file_path = os.path.join(data_set_folder_name, environment['data_file_name']))
@@ -57,8 +57,8 @@ class Main(object):
 		logging.info("(User based) Predicting: %s" % data_set_folder_name)
 		user_based_predictor = userbasedpredictor.UserBasedPredictor()
 		user_based_predictor.train(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TRAINING_SET_FILE_NAME))
-		mae = user_based_predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME))
-		logging.info("(Userd based) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
+		mae = user_based_predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), environment['possible_values'])
+		logging.info("(User based) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
 
 
 	def __split_ratings_matrix_to_training_and_testing(self, ratings_matrix, training_percentage = 80):
