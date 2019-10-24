@@ -1,3 +1,5 @@
+# reference from: http://www.albertauyeung.com/post/python-matrix-factorization
+
 import numpy as np
 import pickle
 
@@ -16,11 +18,10 @@ class MatrixFactorizationPredictor(AbstractPredictor):
 
 	def train(self, training_set_file_path):
 		with open(training_set_file_path, 'rb') as training_set_file:
-			R = pickle.load(training_set_file)
-			self.R = R
-			self.num_users, self.num_items = R.shape
+			self.R = pickle.load(training_set_file)
+			self.num_users, self.num_items = self.R.shape
 
-			# Initialize user and item latent feature matrice
+			# Initialize user and item latent feature matrices
 			self.P = np.random.normal(scale=1./self.K, size=(self.num_users, self.K))
 			self.Q = np.random.normal(scale=1./self.K, size=(self.num_items, self.K))
 
@@ -40,20 +41,18 @@ class MatrixFactorizationPredictor(AbstractPredictor):
 	def sgd(self):
 		for i, j, r in self.samples:
 			# Computer prediction and error
-			prediction = self.get_rating(i, j)
-			e = (r - prediction)
+			e = (r - self.get_predicted_rating(i, j))
 
 			# Update biases
 			self.b_u[i] += self.alpha * (e - self.beta * self.b_u[i])
 			self.b_i[j] += self.alpha * (e - self.beta * self.b_i[j])
 
 			# Update user and item latent feature matrices
-			self.P[i, :] += self.alpha * (e * self.Q[j, :] - self.beta * self.P[i,:])
-			self.Q[j, :] += self.alpha * (e * self.P[i, :] - self.beta * self.Q[j,:])
+			self.P[i, :] += self.alpha * (e * self.Q[j, :] - self.beta * self.P[i, :])
+			self.Q[j, :] += self.alpha * (e * self.P[i, :] - self.beta * self.Q[j, :])
 
-	def get_rating(self, i, j):
-		prediction = self.b + self.b_u[i] + self.b_i[j] + self.P[i, :].dot(self.Q[j, :].T)
-		return prediction
+	def get_predicted_rating(self, i, j):
+		return self.b + self.b_u[i] + self.b_i[j] + self.P[i, :].dot(self.Q[j, :].T)
 
 	def predict(self, testing_set_file_path, *args):
 		with open(testing_set_file_path, 'rb') as testing_set_file:
@@ -63,7 +62,7 @@ class MatrixFactorizationPredictor(AbstractPredictor):
 			for i in range(len(rows_non_zero)):
 				user, item = rows_non_zero[i], cols_non_zero[i]
 				actual_rating = testing_set[user, item]
-				predicted_rating = self.get_rating(user, item)
+				predicted_rating = self.get_predicted_rating(user, item)
 				mae += abs(actual_rating - predicted_rating)
 			mae /= len(rows_non_zero)
 			return mae
