@@ -4,6 +4,7 @@ import numpy as np
 
 class CombinedPredictor(object):
 	def __init__(self):
+		self.name = "Combined"
 		self.user_distributions = dict()
 		self.item_distributions = dict()
 

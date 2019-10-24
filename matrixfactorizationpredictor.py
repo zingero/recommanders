@@ -3,6 +3,7 @@ import pickle
 
 class MatrixFactorizationPredictor():
 	def __init__(self, K=15, alpha=0.001, beta=0, iterations=10):
+		self.name = "Matrix factorization"
 		self.K = K
 		self.alpha = alpha
 		self.beta = beta
@@ -49,7 +50,7 @@ class MatrixFactorizationPredictor():
 		prediction = self.b + self.b_u[i] + self.b_i[j] + self.P[i, :].dot(self.Q[j, :].T)
 		return prediction
 
-	def predict(self, testing_set_file_path):
+	def predict(self, testing_set_file_path, *args):
 		with open(testing_set_file_path, 'rb') as testing_set_file:
 			testing_set = pickle.load(testing_set_file)
 			rows_non_zero, cols_non_zero = testing_set.nonzero()

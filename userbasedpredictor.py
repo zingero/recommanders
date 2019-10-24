@@ -4,6 +4,7 @@ import numpy as np
 
 class UserBasedPredictor(object):
 	def __init__(self):
+		self.name = "User based"
 		self.user_distributions = dict()
 
 	def train(self, training_set_file_path):
@@ -11,13 +12,11 @@ class UserBasedPredictor(object):
 			training_set = pickle.load(training_set_file)
 			rows_non_zero, cols_non_zero = training_set.nonzero()
 			for i in range(len(rows_non_zero)):
-				current_user, current_item = rows_non_zero[i], cols_non_zero[i]
+				user, item = rows_non_zero[i], cols_non_zero[i]
 				try:
-					self.user_distributions[current_user].append(training_set[current_user, current_item])
-
-				except:
-					self.user_distributions[current_user] = []
-					self.user_distributions[current_user].append(training_set[current_user, current_item])
+					self.user_distributions[user].append(training_set[user, item])
+				except KeyError:
+					self.user_distributions[user] = [training_set[user, item]]
 
 	def predict(self, testing_set_file_path, possible_values):
 		with open(testing_set_file_path, 'rb') as testing_set_file:

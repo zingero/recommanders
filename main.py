@@ -30,7 +30,7 @@ class Main(object):
 			self.init_user_based_predictor(data_set_folder_name, environment)
 			self.init_movie_based_predictor(data_set_folder_name, environment)
 			self.init_combined_predictor(data_set_folder_name, environment)
-			self.init_matrix_factorization_predictor(data_set_folder_name, environment)
+			self.init_matrix_factorization_predictor(data_set_folder_name)
 
 	def init_logging(self):
 		logging.basicConfig(format = '%(asctime)s %(levelname)s %(message)s', level = logging.DEBUG)
@@ -51,45 +51,33 @@ class Main(object):
 		logging.info("Parsed in: %s seconds" % (time.time() - start_time))
 
 	def init_uniform_predictor(self, data_set_folder_name, environment):
-		start_time = time.time()
-		logging.info("(Uniform) Predicting: %s" % data_set_folder_name)
-		uniform_predictor = uniformpredictor.UniformPredictor()
-		mae = uniform_predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), environment['possible_values'])
-		logging.info("(Uniform) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
+		predictor = uniformpredictor.UniformPredictor()
+		self.init_generic_predictor(data_set_folder_name, predictor, environment)
 
 	def init_user_based_predictor(self, data_set_folder_name, environment):
-		start_time = time.time()
-		logging.info("(User based) Predicting: %s" % data_set_folder_name)
-		user_based_predictor = userbasedpredictor.UserBasedPredictor()
-		user_based_predictor.train(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TRAINING_SET_FILE_NAME))
-		mae = user_based_predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), environment['possible_values'])
-		logging.info("(User based) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
+		predictor = userbasedpredictor.UserBasedPredictor()
+		self.init_generic_predictor(data_set_folder_name, predictor, environment)
 
 	def init_movie_based_predictor(self, data_set_folder_name, environment):
-		start_time = time.time()
-		logging.info("(Movie based) Predicting: %s" % data_set_folder_name)
-		movie_based_predictor = moviebasedpredictor.MovieBasedPredictor()
-		movie_based_predictor.train(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TRAINING_SET_FILE_NAME))
-		mae = movie_based_predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), environment['possible_values'])
-		logging.info("(Movie based) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
+		predictor = moviebasedpredictor.MovieBasedPredictor()
+		self.init_generic_predictor(data_set_folder_name, predictor, environment)
 
 	def init_combined_predictor(self, data_set_folder_name, environment):
+		predictor = combinedpredictor.CombinedPredictor()
+		self.init_generic_predictor(data_set_folder_name, predictor, environment)
+
+	def init_matrix_factorization_predictor(self, data_set_folder_name):
+		predictor = matrixfactorizationpredictor.MatrixFactorizationPredictor()
+		self.init_generic_predictor(data_set_folder_name, predictor)
+
+	def init_generic_predictor(self, data_set_folder_name, predictor, environment = {}):
+		logging.info("(%s) Predicting: %s" % (predictor.name, data_set_folder_name))
 		start_time = time.time()
-		logging.info("(Combined) Predicting: %s" % data_set_folder_name)
-		combined_predictor = combinedpredictor.CombinedPredictor()
-		combined_predictor.train(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TRAINING_SET_FILE_NAME))
-		mae = combined_predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), environment['possible_values'])
-		logging.info("(Combined) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
-
-	def init_matrix_factorization_predictor(self, data_set_folder_name, environment):
+		predictor.train(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TRAINING_SET_FILE_NAME))
+		logging.info("(%s) Finished training for: %s. trained in: %s seconds" % (predictor.name, data_set_folder_name, time.time() - start_time))
 		start_time = time.time()
-		logging.info("(Matrix factorization) Predicting: %s" % data_set_folder_name)
-		matrix_factorization_predictor = matrixfactorizationpredictor.MatrixFactorizationPredictor()
-		matrix_factorization_predictor.train(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TRAINING_SET_FILE_NAME))
-		mae = matrix_factorization_predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME))
-		logging.info("(Matrix factorization) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (data_set_folder_name, mae, time.time() - start_time))
-
-
+		mae = predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), environment.get('possible_values'))
+		logging.info("(%s) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (predictor.name, data_set_folder_name, mae, time.time() - start_time))
 
 	def __split_ratings_matrix_to_training_and_testing(self, ratings_matrix, training_percentage = 80):
 		training_set, testing_set = lil_matrix(ratings_matrix.shape), lil_matrix(ratings_matrix.shape)

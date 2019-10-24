@@ -3,6 +3,12 @@ import numpy as np
 
 
 class UniformPredictor(object):
+	def __init__(self):
+		self.name = "Uniform"
+
+	def train(self, *args, **kwargs):
+		pass
+
 	def predict(self, testing_set_file_path, possible_values):
 		with open(testing_set_file_path, 'rb') as testing_set_file:
 			testing_set = pickle.load(testing_set_file)

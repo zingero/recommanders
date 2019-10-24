@@ -4,6 +4,7 @@ import numpy as np
 
 class MovieBasedPredictor(object):
 	def __init__(self):
+		self.name = "Movie based"
 		self.item_distributions = dict()
 
 	def train(self, training_set_file_path):
