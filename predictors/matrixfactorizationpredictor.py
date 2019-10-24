@@ -1,7 +1,10 @@
 import numpy as np
 import pickle
 
-class MatrixFactorizationPredictor():
+from predictors.abstractpredictor import AbstractPredictor
+
+
+class MatrixFactorizationPredictor(AbstractPredictor):
 	def __init__(self, K=15, alpha=0.001, beta=0, iterations=10):
 		self.name = "Matrix factorization"
 		self.K = K

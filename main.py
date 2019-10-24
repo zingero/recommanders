@@ -7,14 +7,10 @@ import numpy
 from scipy.sparse import lil_matrix
 from scipy.sparse import csr_matrix
 
+import tongue
 from parsers.parser100k import Parser100K
 from parsers.parser20m import Parser20M
-import tongue
-import uniformpredictor
-import userbasedpredictor
-import moviebasedpredictor
-import combinedpredictor
-import matrixfactorizationpredictor
+from predictors import combinedpredictor, userbasedpredictor, moviebasedpredictor, uniformpredictor, matrixfactorizationpredictor
 
 
 class Main(object):

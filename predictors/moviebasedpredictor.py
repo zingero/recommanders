@@ -1,11 +1,12 @@
 import pickle
 import numpy as np
 
+from predictors.abstractpredictor import AbstractPredictor
 
-class CombinedPredictor(object):
+
+class MovieBasedPredictor(AbstractPredictor):
 	def __init__(self):
-		self.name = "Combined"
-		self.user_distributions = dict()
+		self.name = "Movie based"
 		self.item_distributions = dict()
 
 	def train(self, training_set_file_path):
@@ -21,13 +22,6 @@ class CombinedPredictor(object):
 					self.item_distributions[current_item] = []
 					self.item_distributions[current_item].append(training_set[current_user, current_item])
 
-				try:
-					self.user_distributions[current_user].append(training_set[current_user, current_item])
-
-				except:
-					self.user_distributions[current_user] = []
-					self.user_distributions[current_user].append(training_set[current_user, current_item])
-
 	def predict(self, testing_set_file_path, possible_values):
 		with open(testing_set_file_path, 'rb') as testing_set_file:
 			testing_set = pickle.load(testing_set_file)
@@ -38,15 +32,8 @@ class CombinedPredictor(object):
 				actual_rating = testing_set[user, item]
 				try:
 					train_ratings_for_item = self.item_distributions[item]
-					predicted_item_rating = train_ratings_for_item[np.random.randint(0, len(train_ratings_for_item))]
+					predicted_rating = train_ratings_for_item[np.random.randint(0, len(train_ratings_for_item))]
 				except:
-					predicted_item_rating = possible_values[np.random.randint(0, len(possible_values))]
-				try:
-					train_ratings_for_user = self.user_distributions[user]
-					predicted_user_rating = train_ratings_for_user[np.random.randint(0, len(train_ratings_for_user))]
-				except:
-					predicted_user_rating = possible_values[np.random.randint(0, len(possible_values))]
-
-				predicted_rating = (predicted_user_rating + predicted_item_rating) / 2
+					predicted_rating = possible_values[np.random.randint(0, len(possible_values))]
 				mae += abs(actual_rating - predicted_rating) / len(rows_non_zero)
 			return mae
