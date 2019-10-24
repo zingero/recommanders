@@ -6,11 +6,13 @@ from predictors.abstractpredictor import AbstractPredictor
 
 class MatrixFactorizationPredictor(AbstractPredictor):
 	def __init__(self, K=15, alpha=0.001, beta=0, iterations=10):
-		self.name = "Matrix factorization"
 		self.K = K
 		self.alpha = alpha
 		self.beta = beta
 		self.iterations = iterations
+
+	def name(self):
+		return "Matrix factorization"
 
 	def train(self, training_set_file_path):
 		with open(training_set_file_path, 'rb') as training_set_file:

@@ -5,8 +5,8 @@ from predictors.abstractpredictor import AbstractPredictor
 
 
 class UniformPredictor(AbstractPredictor):
-	def __init__(self):
-		self.name = "Uniform"
+	def name(self):
+		return "Uniform"
 
 	def predict(self, testing_set_file_path, possible_values):
 		with open(testing_set_file_path, 'rb') as testing_set_file:

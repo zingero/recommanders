@@ -2,6 +2,12 @@ import abc
 
 
 class AbstractPredictor(object):
+	__meta__ = abc.ABCMeta
+
+	@abc.abstractmethod
+	def name(self):
+		pass
+
 	def train(self, training_set_file_path):
 		pass
 

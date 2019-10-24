@@ -67,13 +67,13 @@ class Main(object):
 		self.init_generic_predictor(data_set_folder_name, predictor)
 
 	def init_generic_predictor(self, data_set_folder_name, predictor, environment = {}):
-		logging.info("(%s) Predicting: %s" % (predictor.name, data_set_folder_name))
+		logging.info("(%s) Predicting: %s" % (predictor.name(), data_set_folder_name))
 		start_time = time.time()
 		predictor.train(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TRAINING_SET_FILE_NAME))
-		logging.info("(%s) Finished training for: %s. trained in: %s seconds" % (predictor.name, data_set_folder_name, time.time() - start_time))
+		logging.info("(%s) Finished training for: %s. trained in: %s seconds" % (predictor.name(), data_set_folder_name, time.time() - start_time))
 		start_time = time.time()
 		mae = predictor.predict(os.path.join(tongue.PARSED_DATA_PATH, data_set_folder_name, tongue.TESTING_SET_FILE_NAME), environment.get('possible_values'))
-		logging.info("(%s) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (predictor.name, data_set_folder_name, mae, time.time() - start_time))
+		logging.info("(%s) Finished prediction for: %s. mae: %s. predicted in: %s seconds" % (predictor.name(), data_set_folder_name, mae, time.time() - start_time))
 
 	def __split_ratings_matrix_to_training_and_testing(self, ratings_matrix, training_percentage = 80):
 		training_set, testing_set = lil_matrix(ratings_matrix.shape), lil_matrix(ratings_matrix.shape)
